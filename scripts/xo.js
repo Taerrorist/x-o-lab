@@ -14,25 +14,22 @@ const winningCombos = [
 
 /*---------------------------- Variables (state) ----------------------------*/
 let board = ['', '', '', '', '', '', '', '', '']
-let turn = "X" 
+let turn = "X"
 let winner = false
 let tie = false
 /*------------------------ Cached Element References ------------------------*/
-
+const resetBtnElm = document.getElementById('reset')
 
 /*-------------------------------- Functions --------------------------------*/
 function init() {
     render()
-
-    
-
 }
 
 function render() {
     if (winner === false && tie === false) {
-        messageElm.textContent = 'Player\'s turn'
+        messageElm.textContent = "Player " + turn + "\s" + " turn"
     }
-    
+    updateBoard()
     updateMessage()
 }
 
@@ -40,7 +37,6 @@ function updateBoard() {
     for (i = 0; i < board.length; i++) {
         squareElm[i].textContent = board[i]
     }
-
 }
 
 function updateMessage() {
@@ -50,11 +46,11 @@ function updateMessage() {
     else if (winner === false && tie === false) {
         messageElm.textContent = `${turn}'s turn`
     }
-    else {
+    else if (winner) {
         messageElm.textContent = `${winner} has won`
     }
 }
-init()
+
 
 
 /* 
@@ -64,34 +60,24 @@ init()
 */
 
 function handleClick(event) {
-
     const squareIndex = event.target.id
 
-    console.log(board)
+    if (board[squareIndex] !== ''  ) return
+    board[squareIndex] = turn
 
-    if(board[squareIndex] !== '') return 
-    board[squareIndex] = turn 
-        updateBoard()
+    updateBoard()
+    checkForWinner()
 
-        console.log("turn",turn)
-
-    
-    if (turn === "X") {
-        turn = "O"
-        console.log(turn)
-    }
-
-    else if (turn === "O") {
+    if (turn === "O") {
         turn = "X"
-        console.log(turn)
-
+    } else if (turn === "X") {
+        turn = "O"
     }
-checkForWinner()
-
-
-
+    placePiece()
+    updateMessage()
 }
 
+//this loop is for ... i forgor 
 for (i = 0; i < squareElm.length; i++) {
     squareElm[i].addEventListener('click', handleClick)
 }
@@ -99,49 +85,51 @@ for (i = 0; i < squareElm.length; i++) {
 
 function placePiece(index) {
     board[index] = turn
-    console.log(board)
 }
 
-// loop through the winningCombos
 
+
+// loop through the winningCombos
 // 2. check that the value in the inner array in our board are the same
 function checkForWinner() {
     winningCombos.forEach(combo => {
-        const [a, b, c] = combo 
-        if (board[a] !== '' && board[a] === board[b] && board[b] === board[c]){
-            winner = true;
-            console.log("Winner")
+        const [a, b, c] = combo
+        if (board[a] !== '' && board[a] === board[b] && board[b] === board[c]) {
+            winner = turn
+            messageElm.textContent = "Player " + turn + " wins"
         }
     });
-
-// for (let combo of winningCombos)
-
-//         
-        
-        }
-// }
+}
 
 
 
-function checkForTie(){
-    if (winner === true){
+function checkForTie() {
+    if (winner) {
+        tie = false 
         return 
     }
-    
-    if (board === ''){
-        tie = false 
+    if (board.every((cell) => cell !== "")) {
+        tie = true
     } else {
-        tie = true 
-    }
-
+        tie = false
+    } 
 }
 
-function switchPlayerTurn (){
+function switchPlayerTurn() {
+    turn = (turn === "X") ? "O" : "X";
+    messageElm.textContent = "Player " + turn
+}
 
+function resetGame() {
+    board = ['', '', '', '', '', '', '', '', '']
+    turn = 'X';
+    winner = false
+    tie = false
+    updateBoard()
+    updateMessage()
 }
 
 
-render()
 /*----------------------------- Event Listeners -----------------------------*/
 document.addEventListener('DOMContentLoaded', init)
-
+resetBtnElm.addEventListener('click', resetGame);
